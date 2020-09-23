@@ -18,6 +18,8 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private ChannelHandlerContext ctx;
 
 
+
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
         logger.info("channel id is {}", ctx.channel().id());
