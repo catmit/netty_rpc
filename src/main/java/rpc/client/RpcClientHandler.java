@@ -6,28 +6,23 @@ import rpc.ChannelManager;
 import rpc.model.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 
 
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private RpcResponse rpcResponse;
-    private CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
     private ChannelHandlerContext ctx;
-
-
-
+    private Semaphore semaphore = new Semaphore(1);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
         logger.info("channel id is {}", ctx.channel().id());
-        this.rpcResponse = msg;
-        this.rpcResponse.setRequestId(msg.getRequestId());
+        rpcResponse = msg;
+        rpcResponse.setRequestId(msg.getRequestId());
         this.ctx = ctx;
         logger.info("channel read0  当前线程{} ", Thread.currentThread().getName());
-        cyclicBarrier.await();
+        semaphore.release();
         logger.info("唤醒 get result");
     }
 
@@ -37,12 +32,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         logger.info("客户端建立连接");
     }
 
-    public RpcResponse getResult() {
+    public RpcResponse getRpcResponse() {
         try {
-            this.cyclicBarrier.await();
+            semaphore.acquire();
+            semaphore.release();
         } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (BrokenBarrierException e) {
             e.printStackTrace();
         }
         ChannelManager.saveChannel(this.ctx.channel());
@@ -62,5 +56,9 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         super.channelInactive(ctx);
         ChannelManager.delChannel(ctx.channel());
         logger.info("client 连接已关闭");
+    }
+
+    public Semaphore getSemaphore(){
+        return semaphore;
     }
 }

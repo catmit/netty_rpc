@@ -30,7 +30,13 @@ public class RpcClient {
             @Override
             public RpcResponse get() {
                 channel.writeAndFlush(rpcRequest);
-                return ((RpcClientHandler) channel.pipeline().get("rpc")).getResult();
+                RpcClientHandler rpcClientHandler = (RpcClientHandler) channel.pipeline().get("rpc");
+                try {
+                    rpcClientHandler.getSemaphore().acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return rpcClientHandler.getRpcResponse();
             }
         }, executorService);
         try {

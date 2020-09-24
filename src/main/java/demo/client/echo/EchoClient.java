@@ -7,14 +7,15 @@ import rpc.client.proxy.Proxy;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 
 public class EchoClient {
     private static final Logger logger = LoggerFactory.getLogger(EchoClient.class);
 
     public static void main(String[] args) throws IOException, InterruptedException {
         EchoService echoService = Proxy.createBean(EchoService.class);
-        testIdle(echoService);
-//        multiThread(echoService);
+//        testIdle(echoService);
+        multiThread(echoService);
     }
 
     static void testIdle(EchoService echoService){
@@ -28,13 +29,18 @@ public class EchoClient {
 
     static void multiThread(EchoService echoService){
         int count = 0;
-        while (count < 200) {
+        while (count < 20000) {
             count++;
             int finalCount = count;
             new Thread(() -> {
                 logger.info("count is " + finalCount);
                 logger.info(echoService.reply("hello world   " + finalCount));
             }).start();
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
