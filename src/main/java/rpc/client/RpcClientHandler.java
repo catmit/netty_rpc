@@ -2,7 +2,6 @@ package rpc.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import rpc.ChannelManager;
 import rpc.model.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         this.ctx = ctx;
         logger.info("channel read0  当前线程{} ", Thread.currentThread().getName());
         semaphore.release();
-        logger.info("唤醒 get result");
     }
 
     @Override
@@ -39,8 +37,6 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        ChannelManager.saveChannel(this.ctx.channel());
-        logger.info("----------解锁----------");
         return this.rpcResponse;
     }
 
@@ -54,8 +50,6 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        ChannelManager.delChannel(ctx.channel());
-        logger.info("client 连接已关闭");
     }
 
     public Semaphore getSemaphore(){

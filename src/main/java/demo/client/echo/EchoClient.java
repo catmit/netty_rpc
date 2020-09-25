@@ -7,6 +7,8 @@ import rpc.client.proxy.Proxy;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class EchoClient {
@@ -29,18 +31,18 @@ public class EchoClient {
 
     static void multiThread(EchoService echoService){
         int count = 0;
-        while (count < 20000) {
+        while (count < 200) {
             count++;
             int finalCount = count;
             new Thread(() -> {
                 logger.info("count is " + finalCount);
                 logger.info(echoService.reply("hello world   " + finalCount));
             }).start();
-            try {
-                Thread.sleep(200);
+          /*  try {
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 

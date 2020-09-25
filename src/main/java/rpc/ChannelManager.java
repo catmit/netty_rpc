@@ -13,7 +13,6 @@ import rpc.codec.RpcResponseDecoder;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
 
 public class ChannelManager {
     private final static ConcurrentLinkedQueue<Channel> pool = new ConcurrentLinkedQueue<>();
